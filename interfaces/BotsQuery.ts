@@ -1,4 +1,4 @@
-import { Bot } from "./Bot.ts";
+import { Bot } from './Bot.ts';
 
 export interface BotsQuery {
 	limit?: number;
