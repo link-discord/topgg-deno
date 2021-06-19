@@ -6,10 +6,10 @@ import { Client } from './mod.ts';
 const client = new Client(Deno.env.get('TOKEN') as string);
 
 Deno.test('fetch bot data', async () => {
-  const data = await client.getBot('706054368318980138');
-  assertEquals(data.username, 'Anti NSFW');
+	const data = await client.getBot('706054368318980138');
+	assertEquals(data.username, 'Anti NSFW');
 
-  assertThrowsAsync(async () => {
-    await client.getBot('');
-  });
+	assertThrowsAsync(async () => {
+		await client.getBot('');
+	});
 });
