@@ -51,7 +51,7 @@ export class Client {
 	async getBot(id: string) {
 		if (id.length === 0) throw new Error("ID cant be empty.");
 		return (await this.handleRequest("GET", `/bots/${id}`)) as Bot;
-    }
+	}
 }
 
 export default Client;
