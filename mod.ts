@@ -4,19 +4,16 @@ import { Bot } from './interfaces/Bot.ts';
 export class Client {
 	private token: string;
 	private base: string;
-	private ratelimiting: {
-		ratelimited: boolean;
-		retyAfter: number;
-	};
+	private ratelimited: boolean
 
 	constructor(token: string) {
 		this.token = token;
 		this.base = 'https://top.gg/api/';
-		this.ratelimiting = { ratelimited: false, retyAfter: 0 };
+		this.ratelimited = false
 	}
 
 	private async handleRequest(method: string, path: string, config?: any) {
-		if (this.ratelimiting.ratelimited) throw new Error('You are being ratelimited by the top.gg API.');
+		if (this.ratelimited) throw new Error('You are being ratelimited by the top.gg API.');
 
 		const response = await fetch(`${this.base}${path}`, {
 			method: method,
@@ -29,11 +26,11 @@ export class Client {
 		if (response.status === 429) {
 			const timeout = Number(response.headers.get('retry-after')) * 1000;
 
-			setTimeout(() => {
-				this.ratelimiting = { ratelimited: false, retyAfter: 0 };
-			}, timeout);
+			this.ratelimited = true
 
-			this.ratelimiting = { ratelimited: true, retyAfter: timeout };
+			setTimeout(() => {
+				this.ratelimited = false
+			}, timeout);
 
 			throw new Error('You are being ratelimited by the top.gg API.');
 		}
