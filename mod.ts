@@ -36,20 +36,20 @@ export class Client {
 			this.ratelimiting = { ratelimited: true, retyAfter: timeout }
 
 			throw new Error('You are being ratelimited by the top.gg API.')
-        }
+		}
 
-        let data: any = null
+		let data: any = null
 
-        if (response.headers.get('Content-Type')?.startsWith('application/json')) data = response.json()
-        else data = response.text()
+		if (response.headers.get('Content-Type')?.startsWith('application/json')) data = response.json()
+		else data = response.text()
 
 		return data
 	}
 
-    async getBot(id: string) {
-        if (id.length === 0) throw new Error('ID cant be empty.')
-        return await this.handleRequest('GET', `/bots/${id}`) as Bot
-    }
+	async getBot(id: string) {
+		if (id.length === 0) throw new Error('ID cant be empty.')
+		return (await this.handleRequest('GET', `/bots/${id}`)) as Bot
+	}
 }
 
 export default Client
