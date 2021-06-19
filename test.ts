@@ -13,3 +13,12 @@ Deno.test('fetch bot data', async () => {
 		await client.getBot('');
 	});
 });
+
+Deno.test('fetch bots', async () => {
+  const data = await client.getBots({
+    search: 'Anti NSFW',
+    limit: 1
+  });
+
+  assertEqual(data[0].username, 'Anti NSFW');
+});
