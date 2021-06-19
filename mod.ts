@@ -1,5 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { Bot } from './interfaces/Bot.ts';
+import { BotsQuery } from './interfaces/BotsQuery.ts';
+import { BotsResponse } from './interfaces/BotsResponse.ts';
 
 export class Client {
 	private token!: string;
@@ -17,15 +19,17 @@ export class Client {
 		this.ratelimited = false;
 	}
 
-	private async handleRequest(method: string, path: string, config?: any): Promise<any> {
+	private async handleRequest(method: string, path: string, body?: any): Promise<any> {
 		if (this.ratelimited) throw new Error('You are being ratelimited by the top.gg API.');
+
+    if (body && method === 'GET') path += `?${new URLSearchParams(body)}`;
 
 		const response = await fetch(`${this.base}${path}`, {
 			method,
 			headers: {
 				Authorization: this.token,
 			},
-			body: config ? JSON.stringify(config) : undefined,
+			body: body && method !== 'GET' ? JSON.stringify(body) : undefined,
 		});
 
 		if (response.status === 429) {
@@ -52,6 +56,20 @@ export class Client {
 		if (id.length === 0) throw new Error("The 'id' argument cannot be empty");
 		return (await this.handleRequest('GET', `/bots/${id}`)) as Bot;
 	}
+
+  async getBots(query?: BotsQuery): Promise<BotsResponse> {
+    if (query) {
+      if (Array.isArray(query.fields)) query.fields = query.fields.join(', ');
+      if (typeof query.search === 'object' &&
+          query.search !== null &&
+          !Array.isArray(query.search))
+        query.search = Object.entries(query.search)
+          .map(([K, V]) => `${K}: ${V}`)
+          .join(' ');
+    }
+
+    return (await this.handleRequest('GET', '/bots', query)) as BotsResponse;
+  }
 }
 
 export default Client;
