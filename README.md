@@ -7,7 +7,7 @@ Deno sdk for the top.gg api
 The usage is essentially the same as the [node sdk](https://npmjs.com/package/@top-gg/sdk)
 Only difference is that there is a different way to listen to vote events.
 
-Example below on how to listen to vote events
+Example below on how to listen to vote events:
 
 ```js
 import { Webhook } from "https://deno.land/x/topgg_deno/mod.ts"

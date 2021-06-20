@@ -6,13 +6,13 @@ import { Bot } from './interfaces/Bot.ts';
 import { BotsQuery } from './interfaces/BotsQuery.ts';
 import { BotsResponse } from './interfaces/BotsResponse.ts';
 import { BotStats } from './interfaces/BotStats.ts';
-import { BotWebhook } from './interfaces/BotWebhook.ts';
 import { PostBotStats } from './interfaces/PostBotStats.ts';
 import { User } from './interfaces/User.ts';
 import { VotesResponse } from './interfaces/VotesResponse.ts';
+import { WebhookVote } from './interfaces/WebhookVote.ts'
 
 type Events = {
-	vote: [BotWebhook];
+	vote: [WebhookVote];
 	close: [void];
 };
 
@@ -155,7 +155,7 @@ export class Webhook extends EventEmitter<Events> {
 						}
 
 						readAll(req.body).then((buffer) => {
-							const data: BotWebhook = JSON.parse(new TextDecoder().decode(buffer));
+							const data: WebhookVote = JSON.parse(new TextDecoder().decode(buffer));
 							this.emit('vote', data);
 						});
 

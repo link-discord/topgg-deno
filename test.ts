@@ -101,6 +101,5 @@ Deno.test('webhook', () => {
 });
 
 setTimeout(() => {
-	// @ts-ignore Using method just for testing
-	api.closeWebhook()
+	webhook.closeWebhook()
 }, 1500)
