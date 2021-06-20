@@ -1,12 +1,12 @@
 import 'https://deno.land/x/dotenv@v2.0.0/load.ts';
 import { assertEquals, assertThrowsAsync, assertExists } from 'https://deno.land/std@0.99.0/testing/asserts.ts';
 
-import { Client } from './mod.ts';
+import { Api } from './mod.ts';
 
 const token = Deno.env.get('TOKEN') as string;
 const port = Number(Deno.env.get('PORT'));
 
-const client = new Client(token, { port: port, path: '/dblwebhook', password: 'denotest69420' });
+const client = new Api(token, { port: port, path: '/dblwebhook', password: 'denotest69420' });
 
 const url = `http://localhost:${port}/dblwebhook`;
 

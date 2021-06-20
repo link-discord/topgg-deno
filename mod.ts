@@ -15,7 +15,7 @@ type Events = {
 	vote: [BotWebhook];
 };
 
-export class Client extends EventEmitter<Events> {
+export class Api extends EventEmitter<Events> {
 	private token!: string;
 	private base: string;
 	private ratelimited: boolean;
@@ -39,8 +39,8 @@ export class Client extends EventEmitter<Events> {
 
 			// @ts-ignore shut
 			this.once('close', () => {
-				server.close()
-			})
+				server.close();
+			});
 
 			for await (const req of server) {
 				const authHeader = req.headers.get('Authorization');
@@ -60,8 +60,8 @@ export class Client extends EventEmitter<Events> {
 						}
 
 						readAll(req.body).then((buffer) => {
-							const data: BotWebhook = JSON.parse(new TextDecoder().decode(buffer))
-							this.emit('vote', data)
+							const data: BotWebhook = JSON.parse(new TextDecoder().decode(buffer));
+							this.emit('vote', data);
 						});
 
 						req.respond({ status: 200, body: '' });
@@ -76,7 +76,9 @@ export class Client extends EventEmitter<Events> {
 	}
 
 	private async handleRequest(method: string, path: string, body?: any): Promise<any> {
-		if (this.ratelimited) throw new Error('You are being ratelimited by the top.gg API.');
+		if (this.ratelimited) {
+			throw new Error('You are being ratelimited by the top.gg API.');
+		}
 
 		if (body && method === 'GET') path += `?${new URLSearchParams(body)}`;
 
@@ -102,8 +104,9 @@ export class Client extends EventEmitter<Events> {
 
 		let data: any = null;
 
-		if (response.headers.get('Content-Type')?.startsWith('application/json')) data = await response.json();
-		else data = await response.text();
+		if (response.headers.get('Content-Type')?.startsWith('application/json')) {
+			data = await response.json();
+		} else data = await response.text();
 
 		return data;
 	}
@@ -121,10 +124,11 @@ export class Client extends EventEmitter<Events> {
 	async getBots(query?: BotsQuery): Promise<BotsResponse> {
 		if (query) {
 			if (Array.isArray(query.fields)) query.fields = query.fields.join(', ');
-			if (typeof query.search === 'object' && query.search !== null && !Array.isArray(query.search))
+			if (typeof query.search === 'object' && query.search !== null && !Array.isArray(query.search)) {
 				query.search = Object.entries(query.search)
 					.map(([K, V]) => `${K}: ${V}`)
 					.join(' ');
+			}
 		}
 
 		return (await this.handleRequest('GET', '/bots', query)) as BotsResponse;
@@ -146,12 +150,14 @@ export class Client extends EventEmitter<Events> {
 	}
 
 	async hasVoted(botid: string, userid: string): Promise<boolean> {
-		if (botid.length === 0 || userid.length === 0) throw new Error("The 'id' argument cannot be empty");
+		if (botid.length === 0 || userid.length === 0) {
+			throw new Error("The 'id' argument cannot be empty");
+		}
 		return Boolean((await this.handleRequest('GET', `/bots/${botid}/check?userId=${userid}`)).voted);
 	}
 
-	private closeWebhook() {
+	closeWebhook() {
 		// @ts-ignore shut
-		this.emit('close')
+		this.emit('close');
 	}
 }
