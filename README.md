@@ -4,22 +4,13 @@ Deno sdk for the top.gg api
 
 ## Usage
 
-Posting stats
+The usage is essentially the same as the [node sdk](https://npmjs.com/package/@top-gg/sdk)
+Only difference is that there is a different way to listen to vote events.
+
+Example below on how to listen to vote events
 
 ```js
-import { Api } from 'https://deno.land/x/topgg-deno/mod.ts';
-
-const api = new Api('Your Top.gg Token');
-
-api.postStats({
-	server_count: 0, // Guild count of your bot
-});
-```
-
-Listening to votes using a webhook
-
-```js
-import { Webhook } from "https://deno.land/x/topgg-deno/mod.ts"
+import { Webhook } from "https://deno.land/x/topgg_deno/mod.ts"
 
 const webhook = new Webhook({
     port: 3000 // The port you want to listen to

@@ -16,14 +16,12 @@ type Events = {
 	close: [void];
 };
 
-export class Api extends EventEmitter<Events> {
+export class Api {
 	private token!: string;
 	private base: string;
 	private ratelimited: boolean;
 
-	constructor(token: string, webhook?: { port: number; path: string; password?: string }) {
-		super();
-
+	constructor(token: string) {
 		Object.defineProperty(this, 'token', {
 			value: token,
 			writable: true,
@@ -32,48 +30,6 @@ export class Api extends EventEmitter<Events> {
 		});
 		this.base = 'https://top.gg/api';
 		this.ratelimited = false;
-
-		if (!webhook) return;
-
-		(async () => {
-			const server = serve({ port: webhook.port });
-
-			// @ts-ignore shut
-			this.once('close', () => {
-				server.close();
-			});
-
-			for await (const req of server) {
-				const authHeader = req.headers.get('Authorization');
-
-				switch (req.method) {
-					case 'GET':
-						req.respond({ body: 'The webhook is listening!\n' });
-						break;
-
-					case 'POST':
-						if (authHeader && webhook.password && authHeader !== webhook.password) {
-							req.respond({ status: 401, body: '' });
-							return;
-						} else if (!authHeader && webhook.password) {
-							req.respond({ status: 401, body: '' });
-							return;
-						}
-
-						readAll(req.body).then((buffer) => {
-							const data: BotWebhook = JSON.parse(new TextDecoder().decode(buffer));
-							this.emit('vote', data);
-						});
-
-						req.respond({ status: 200, body: '' });
-						break;
-
-					default:
-						req.respond({ status: 200, body: '' });
-						break;
-				}
-			}
-		})();
 	}
 
 	private async handleRequest(method: string, path: string, body?: any): Promise<any> {
@@ -113,12 +69,12 @@ export class Api extends EventEmitter<Events> {
 	}
 
 	async getBot(id: string): Promise<Bot> {
-		if (id.length === 0) throw new Error("The 'id' argument cannot be empty");
+		if (!id || id.length === 0) throw new Error("The 'id' argument cannot be empty");
 		return (await this.handleRequest('GET', `/bots/${id}`)) as Bot;
 	}
 
 	async getUser(id: string): Promise<User> {
-		if (id.length === 0) throw new Error("the 'id' argument cannot be empty");
+		if (!id || id.length === 0) throw new Error("the 'id' argument cannot be empty");
 		return await this.handleRequest('GET', `/users/${id}`);
 	}
 
@@ -136,30 +92,36 @@ export class Api extends EventEmitter<Events> {
 	}
 
 	async getVotes(id: string): Promise<VotesResponse> {
-		if (id.length === 0) throw new Error("The 'id' argument cannot be empty");
+		if (!id || id.length === 0) throw new Error("The 'id' argument cannot be empty");
 		return (await this.handleRequest('GET', `/bots/${id}/votes`)) as VotesResponse;
 	}
 
 	async getStats(id: string): Promise<BotStats> {
-		if (id.length === 0) throw new Error("The 'id' argument cannot be empty");
-		return (await this.handleRequest('GET', `/bots/${id}/stats`)) as BotStats;
+		if (!id || id.length === 0) throw new Error("The 'id' argument cannot be empty");
+		const data = await this.handleRequest('GET', `/bots/${id}/stats`);
+
+		return {
+			serverCount: data.server_count,
+			shards: data.shards,
+			shardCount: data.shard_count
+		} as BotStats;
 	}
 
-	async postStats(id: string, options: PostBotStats): Promise<void> {
-		if (id.length === 0) throw new Error("The 'id' argument cannot be empty");
-
-		await this.handleRequest('POST', `/bots/${id}/stats`, {
+	async postStats(options: PostBotStats): Promise<void> {
+		await this.handleRequest('POST', `/bots/stats`, {
 			server_count: options.serverCount,
 			shard_id: options.shardId,
-			shard_count: options.shardCount
+			shard_count: options.shardCount,
 		});
 	}
 
-	async hasVoted(botid: string, userid: string): Promise<boolean> {
-		if (botid.length === 0 || userid.length === 0) {
-			throw new Error("The 'id' argument cannot be empty");
-		}
-		return Boolean((await this.handleRequest('GET', `/bots/${botid}/check?userId=${userid}`)).voted);
+	async hasVoted(id: string): Promise<boolean> {
+		if (!id || id.length === 0)  throw new Error("The 'id' argument cannot be empty");
+		return Boolean((await this.handleRequest('GET', `/bots/check?userId=${id}`)).voted);
+	}
+
+	async isWeekend(): Promise<boolean> {
+		return Boolean((await this.handleRequest('GET', `/weekend`)).is_weekend);
 	}
 }
 

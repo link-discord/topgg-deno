@@ -1,12 +1,13 @@
 import 'https://deno.land/x/dotenv@v2.0.0/load.ts';
 import { assertEquals, assertThrowsAsync, assertExists } from 'https://deno.land/std@0.99.0/testing/asserts.ts';
 
-import { Api } from './src/mod.ts';
+import { Api, Webhook } from './src/mod.ts';
 
 const token = Deno.env.get('TOKEN') as string;
 const port = Number(Deno.env.get('PORT'));
 
-const client = new Api(token, { port: port, path: '/dblwebhook', password: 'denotest69420' });
+const api = new Api(token);
+const webhook = new Webhook({ port: port, path: '/dblwebhook', password: 'denotest69420' })
 
 const url = `http://localhost:${port}/dblwebhook`;
 
@@ -20,49 +21,49 @@ const webhookData = {
 console.clear();
 
 Deno.test('fetch bot', async () => {
-	const data = await client.getBot('706054368318980138');
+	const data = await api.getBot('706054368318980138');
 	assertEquals(data.username, 'Anti NSFW');
 
 	await assertThrowsAsync(async () => {
-		await client.getBot('');
+		await api.getBot('');
 	});
 });
 
 Deno.test('fetch user', async () => {
-	const data = await client.getUser('476662199872651264');
+	const data = await api.getUser('476662199872651264');
 	assertEquals(data.username, 'Link');
 
 	assertThrowsAsync(async () => {
-		await client.getUser('');
+		await api.getUser('');
 	});
 });
 
 Deno.test('fetch votes', async () => {
-	const data = await client.getVotes('706054368318980138');
+	const data = await api.getVotes('706054368318980138');
 	assertExists(data);
 
 	assertThrowsAsync(async () => {
-		await client.getVotes('');
+		await api.getVotes('');
 	});
 });
 
 Deno.test('fetch stats', async () => {
-	const data = await client.getStats('706054368318980138');
+	const data = await api.getStats('706054368318980138');
 	assertExists(data);
 
 	assertThrowsAsync(async () => {
-		await client.getStats('');
+		await api.getStats('');
 	});
 });
 
 Deno.test('has voted', async () => {
-	const data = await client.hasVoted('706054368318980138', '205680187394752512');
+	const data = await api.hasVoted('205680187394752512');
 	assertEquals<boolean>(data, false);
 });
 
 Deno.test('webhook', () => {
 	assertThrowsAsync(async () => {
-		client.once('vote', () => {
+		webhook.once('vote', () => {
 			throw new Error('Succesfully failed')
 		})
 
@@ -101,5 +102,5 @@ Deno.test('webhook', () => {
 
 setTimeout(() => {
 	// @ts-ignore Using method just for testing
-	client.closeWebhook()
+	api.closeWebhook()
 }, 1500)
