@@ -1,7 +1,7 @@
 import 'https://deno.land/x/dotenv@v2.0.0/load.ts';
 import { assertEquals, assertThrowsAsync, assertExists } from 'https://deno.land/std@0.99.0/testing/asserts.ts';
 
-import { Api } from './mod.ts';
+import { Api } from './src/mod.ts';
 
 const token = Deno.env.get('TOKEN') as string;
 const port = Number(Deno.env.get('PORT'));
