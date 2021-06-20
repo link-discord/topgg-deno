@@ -56,7 +56,7 @@ export class Api {
 				this.ratelimited = false;
 			}, timeout);
 
-			throw new Error(`You are being ratelimited by the top.gg API. Please retry after: ${timeout}s`);
+			throw new Error(`You are being ratelimited by the top.gg API. Please retry after: ${timeout / 1000}s`);
 		}
 
 		let data: any = null;
