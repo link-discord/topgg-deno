@@ -19,29 +19,29 @@ Deno.test('fetch user', async () => {
 	assertEquals(data.username, 'Link');
 
 	assertThrowsAsync(async () => {
-		await client.getUser('')
-	})
-})
+		await client.getUser('');
+	});
+});
 
 Deno.test('fetch votes', async () => {
-	const data = await client.getVotes('706054368318980138')
-	assertExists(data)
+	const data = await client.getVotes('706054368318980138');
+	assertExists(data);
 
 	assertThrowsAsync(async () => {
 		await client.getVotes('');
 	});
-})
+});
 
 Deno.test('fetch stats', async () => {
-	const data = await client.getStats('706054368318980138')
-	assertExists(data)
+	const data = await client.getStats('706054368318980138');
+	assertExists(data);
 
 	assertThrowsAsync(async () => {
-		await client.getStats('')
-	})
-})
+		await client.getStats('');
+	});
+});
 
 Deno.test('has voted', async () => {
-	const data = await client.hasVoted('706054368318980138', '205680187394752512')
-	assertEquals<boolean>(data, false)
-})
+	const data = await client.hasVoted('706054368318980138', '205680187394752512');
+	assertEquals<boolean>(data, false);
+});
