@@ -1,18 +1,28 @@
 // deno-lint-ignore-file no-explicit-any
+import { serve } from 'https://deno.land/std@0.99.0/http/server.ts';
+import { readAll } from 'https://deno.land/std@0.99.0/io/util.ts';
+import { EventEmitter } from 'https://deno.land/x/event@2.0.0/mod.ts';
 import { Bot } from './interfaces/Bot.ts';
 import { BotsQuery } from './interfaces/BotsQuery.ts';
 import { BotsResponse } from './interfaces/BotsResponse.ts';
 import { BotStats } from './interfaces/BotStats.ts';
+import { BotWebhook } from './interfaces/BotWebhook.ts';
 import { PostBotStats } from './interfaces/PostBotStats.ts';
 import { User } from './interfaces/User.ts';
 import { VotesResponse } from './interfaces/VotesResponse.ts';
 
-export class Client {
+type Events = {
+	vote: [BotWebhook];
+};
+
+export class Client extends EventEmitter<Events> {
 	private token!: string;
 	private base: string;
 	private ratelimited: boolean;
 
-	constructor(token: string) {
+	constructor(token: string, webhook?: { port: number; path: string; password?: string }) {
+		super();
+
 		Object.defineProperty(this, 'token', {
 			value: token,
 			writable: true,
@@ -21,6 +31,48 @@ export class Client {
 		});
 		this.base = 'https://top.gg/api';
 		this.ratelimited = false;
+
+		if (!webhook) return;
+
+		(async () => {
+			const server = serve({ port: webhook.port });
+
+			// @ts-ignore shut
+			this.once('close', () => {
+				server.close()
+			})
+
+			for await (const req of server) {
+				const authHeader = req.headers.get('Authorization');
+
+				switch (req.method) {
+					case 'GET':
+						req.respond({ body: 'The webhook is listening!\n' });
+						break;
+
+					case 'POST':
+						if (authHeader && webhook.password && authHeader !== webhook.password) {
+							req.respond({ status: 401, body: '' });
+							return;
+						} else if (!authHeader && webhook.password) {
+							req.respond({ status: 401, body: '' });
+							return;
+						}
+
+						readAll(req.body).then((buffer) => {
+							const data: BotWebhook = JSON.parse(new TextDecoder().decode(buffer))
+							this.emit('vote', data)
+						});
+
+						req.respond({ status: 200, body: '' });
+						break;
+
+					default:
+						req.respond({ status: 200, body: '' });
+						break;
+				}
+			}
+		})();
 	}
 
 	private async handleRequest(method: string, path: string, body?: any): Promise<any> {
@@ -97,6 +149,9 @@ export class Client {
 		if (botid.length === 0 || userid.length === 0) throw new Error("The 'id' argument cannot be empty");
 		return Boolean((await this.handleRequest('GET', `/bots/${botid}/check?userId=${userid}`)).voted);
 	}
-}
 
-export default Client;
+	private closeWebhook() {
+		// @ts-ignore shut
+		this.emit('close')
+	}
+}

@@ -5,7 +5,7 @@ export interface Bot {
 	discriminator: string;
 	avatar?: string;
 	defAvatar: string;
-  bannerUrl?: string;
+	bannerUrl?: string;
 	lib: string;
 	prefix: string;
 	shortdesc: string;
