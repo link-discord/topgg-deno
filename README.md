@@ -13,7 +13,7 @@ Example below on how to listen to vote events
 import { Webhook } from "https://deno.land/x/topgg_deno/mod.ts"
 
 const webhook = new Webhook({
-    port: 3000 // The port you want to listen to
+    port: 3000, // The port you want to listen to
     path: '/dblwebhook' // On which path you want to recieve vote events
 })
 
