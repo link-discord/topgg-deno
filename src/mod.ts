@@ -69,12 +69,12 @@ export class Api {
 	}
 
 	async getBot(id: string): Promise<Bot> {
-		if (!id || id.length === 0) throw new Error("The 'id' argument cannot be empty");
+		if (!/^\d+$/.test(id)) throw new Error("The 'id' argument cannot be empty");
 		return (await this.handleRequest('GET', `/bots/${id}`)) as Bot;
 	}
 
 	async getUser(id: string): Promise<User> {
-		if (!id || id.length === 0) throw new Error("the 'id' argument cannot be empty");
+		if (!/^\d+$/.test(id)) throw new Error("The 'id' argument cannot be empty");
 		return await this.handleRequest('GET', `/users/${id}`);
 	}
 
@@ -92,12 +92,12 @@ export class Api {
 	}
 
 	async getVotes(id: string): Promise<VotesResponse> {
-		if (!id || id.length === 0) throw new Error("The 'id' argument cannot be empty");
+		if (!/^\d+$/.test(id)) throw new Error("The 'id' argument cannot be empty");
 		return (await this.handleRequest('GET', `/bots/${id}/votes`)) as VotesResponse;
 	}
 
 	async getStats(id: string): Promise<BotStats> {
-		if (!id || id.length === 0) throw new Error("The 'id' argument cannot be empty");
+		if (!/^\d+$/.test(id)) throw new Error("The 'id' argument cannot be empty");
 		const data = await this.handleRequest('GET', `/bots/${id}/stats`);
 
 		return {
@@ -116,7 +116,7 @@ export class Api {
 	}
 
 	async hasVoted(id: string): Promise<boolean> {
-		if (!id || id.length === 0)  throw new Error("The 'id' argument cannot be empty");
+		if (!/^\d+$/.test(id)) throw new Error("The 'id' argument cannot be empty");
 		return Boolean((await this.handleRequest('GET', `/bots/check?userId=${id}`)).voted);
 	}
 
@@ -158,10 +158,7 @@ export class Webhook extends EventEmitter<Events> {
 							const data: WebhookVote = JSON.parse(new TextDecoder().decode(buffer));
 							this.emit('vote', data);
 						});
-
-						req.respond({ status: 200, body: '' });
-						break;
-
+						
 					default:
 						req.respond({ status: 200, body: '' });
 						break;
