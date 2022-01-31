@@ -24,5 +24,5 @@ webhook.on('vote', (vote) => {
 
 ## How often do I update this?
 
-Anytime the top.gg api changes or if a bug is found by you and you create an issue about it.
+Anytime the top.gg api changes or if deno introduces a breaking change that breaks my code or if a bug is found by you and you create an issue about it.
 So don't be concerned that this is oudated or unmaintained because my commits are like 8 months old, its just that there is nothing to do.
